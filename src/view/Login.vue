@@ -14,7 +14,7 @@
         <el-row style="padding:10px">
           <el-col :span="6" style="height:100%"> <h3 style="line-height:2">密码：</h3></el-col>
           <el-col :span="18">
-            <Input v-model="password" icon="md-lock" placeholder="请输入密码"/>
+            <Input v-model="password" type="password" icon="md-lock" placeholder="请输入密码"/>
           </el-col>
         </el-row>
         <el-row style="padding:15px;height:50px">

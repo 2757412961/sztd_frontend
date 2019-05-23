@@ -27,26 +27,25 @@
         <span slot="title">数值预报</span>
       </template>
       <el-menu-item index="weatherProduction" style="padding-left:60px">气象数值预报</el-menu-item>
+      <el-menu-item index="refineWeatherProduction" style="padding-left:60px">精细化气象预报</el-menu-item>
       <el-menu-item index="waveProduction" style="padding-left:60px">海浪数值预报</el-menu-item>
       <el-menu-item index="currentProduction" style="padding-left:60px">海流数值预报</el-menu-item>
-      <el-menu-item index="tideProduction" style="padding-left:60px">潮汐数值预报</el-menu-item>
+      <!--el-menu-item index="tideProduction" style="padding-left:60px">潮汐数值预报</el-menu-item-->
     </el-submenu>
-    <el-menu-item index="buoyHistory">
+    <!--el-menu-item index="buoyHistory">
       <i class="el-icon-setting"></i>
       <span slot="title">现场实时监测</span>
     </el-menu-item>
     <el-menu-item index="strongConvection">
       <i class="el-icon-setting"></i>
       <span slot="title">强对流</span>
-    </el-menu-item>
+    </el-menu-item-->
   </el-menu>
 </template>
 
 <script>
-    import SiteHistoryModal from "../components/SiteHistoryModal";
     export default {
       name: "LeftNav",
-      components: {SiteHistoryModal},
       data() {
         return {
           isCollapse: true

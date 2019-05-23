@@ -24,7 +24,7 @@
 </template>
 
 <script>
-    import UserModal from "../components/UserModal";
+    import UserModal from "../components/User/UserModal";
     export default {
       name: "HeadNav",
       components: {UserModal},

@@ -1,75 +1,57 @@
 <template>
   <modal width="950"
-         v-model="wind_time_series_modal"
+         v-model="current_time_series_modal"
          :mask-closable="false"
          :draggable="true"
          :footer-hide="true">
-    <img
-      id="img_logo"
-      src="~assets/loading.jpg"
-      style="position: absolute;left:390px;top:180px;"
-      v-show="loadingStatus"
-    >
-    <div id="atmWindTimeSeriesChart" :style="{width: '930px', height: '500px'}"></div>
+    <div id="currentTimeSeriesChart" :style="{width: '930px', height: '500px'}"></div>
   </modal>
 </template>
 
 <script>
-    import echarts from 'echarts/lib/echarts';
+  import echarts from 'echarts/lib/echarts';
     export default {
-      name: "WindTimeSeriesModal",
-      data() {
-        return {
-          wind_time_series_modal:false,
-          chart:null,
-          loadingStatus:true
-        }
+        name: "CurrentTimeSeriesModal",
+      data(){
+          return {
+            current_time_series_modal:false,
+            chart:null,
+            loadingStatus:true
+          }
       },
       methods:{
-        openWindTimeSeriesModal(key,strDate,e){
+        openCurrentTimeSeriesModal(siglay,strDate,e){
           //判断是否在数据经纬度范围内
-          if(e[0]>=this.$store.state.atmExtent[0] &
-            e[0]<=this.$store.state.atmExtent[2] &
-            e[1]>=this.$store.state.atmExtent[1] &
-            e[1]<=this.$store.state.atmExtent[3]) {
+          if(e[0]>=this.$store.state.currentExtent[0] &
+            e[0]<=this.$store.state.currentExtent[2] &
+            e[1]>=this.$store.state.currentExtent[1] &
+            e[1]<=this.$store.state.currentExtent[3]) {
             //显示
-            this.wind_time_series_modal = true;
+            this.current_time_series_modal = true;
             this.loadingStatus=true;
             //请求nc时间序列数据并绘制图表
-            this.chart = this.$echarts.init(document.getElementById('atmWindTimeSeriesChart'));
+            this.chart = this.$echarts.init(document.getElementById('currentTimeSeriesChart'));
             this.chart.clear();
-            var api=`/api/SZTDService/`;
-            switch (key){
-              case "10m":
-                api+=`queryAtmWin10mNcData.action`;
-                break;
-              case "500hpa":
-                api+=`queryAtmWin500hpaNcData.action`;
-                break;
-              case "200hpa":
-                api+=`queryAtmWin200hpaNcData.action`;
-                break;
-            }
-            this.queryWindNCdata(api,strDate,e);
+
+            this.queryCurrentNCdata(siglay,strDate,e);
           }
         },
-        /**
-         * 请求大气数据十米风场时间序列数据
-         * @params e
-         */
-        queryWindNCdata(api,strDate,e){
-          this.chart.clear();
+        queryCurrentNCdata(siglay,strDate,e){
+          var api=`/api/SZTDService/queryCurrentNcData.action`;
           this.$axios.get(api,{
             params:{
               strDate:strDate,
+              siglay:siglay,
               lon:e[0],
               lat:e[1]
             }
           }).then((response)=> {
             this.loadingStatus=false;
             var tableData=response.data;
-            if(tableData!=[])
-              this.drawWindTSChart(tableData);
+            if(tableData!=[]){
+              this.drawCurrentTSChart(tableData);
+            }
+
             else
               this.$confirm('没有相关数据！', '提示', {
                 confirmButtonText: '确定',
@@ -84,61 +66,52 @@
           }).finally((response)=>{
             this.loadingStatus=false;
           })
+
         },
-
-        /**
-         * TODO 绘制大气数据十米风场时间序列图
-         * @param tableData
-         */
-        drawWindTSChart(tableData){
-
-          function windLevel(speed){
+        drawCurrentTSChart(tableData){
+          function currentLevel(speed){
             //svg 的坐标系是右为x正方向，下为y正方向，因此为了画出标准的北向风，此处y值全为负值
             //风向标旗头指的方向是风向
-            if(speed<3)
-              return 'M0,0 L0,-20 L4,-20';//1级
-            else if(speed<5)
-              return 'M0,0 L0,-20 L8,-20';//2级
-            else if(speed<7)
-              return 'M0,0 L0,-20 L8,-20 M0,-16 L4,-16';//3级
-            else if(speed<9)
-              return 'M0,0 L0,-20 L8,-20 M0,-16 L8,-16';  //4级
-            else if(speed<11)
-              return 'M0,0 L0,-20 L8,-20 M0,-16 L8,-16 M0,-12 L4,-12';  //5级
-            else if(speed<13)
-              return 'M0,0 L0,-20 L8,-20 M0,-16 L8,-16 M0,-12 L8,-12';  //6级
-            else if(speed<15)
-              return 'M0,0 L0,-20 L8,-20 M0,-16 L8,-16 M0,-12 L8,-12 M0,-8 L4,-8';  //7级
+            if(speed<0.3)
+              return 'M-2,0 L-2,-8 L-4,-8 L0,-12 L4,-8 L2,-8 L2,0 L-2,0';
+            else if(speed<0.6)
+              return 'M-2,0 L-2,-12 L-4,-12 L0,-16 L4,-12 L2,-12 L2,0 L-2,0';
+            else if(speed<0.9)
+              return 'M-2,0 L-2,-16 L-4,-16 L0,-20 L4,-16 L2,-16 L2,0 L-2,0';
+            else if(speed<1.2)
+              return 'M-2,0 L-2,-20 L-4,-20 L0,-24 L4,-20 L2,-20 L2,0 L-2,0';
+            else if(speed<1.5)
+              return 'M-2,0 L-2,-24 L-4,-24 L0,-28 L4,-24 L2,-24 L2,0 L-2,0';
             else
-              return 'M0,0 L0,-20 L8,-16 L0,-12';    //8级以上
+              return 'M-2,0 L-2,-28 L-4,-28 L0,-32 L4,-28 L2,-28 L2,0 L-2,0';
           }
 
           var data = echarts.util.map(tableData, function (entry) {
-            return [entry.time, entry.speed, entry.dir];
+            return [entry.time,entry.speed, entry.dir,entry.zeta];
           });
 
           var dims = {
             time: 0,
             speed: 1,
-            dir: 2
+            dir: 2,
+            zeta:3
           };
-
           function renderArrow(param, api) {
             var point = api.coord([
               api.value(dims.time),
-              api.value(dims.speed)
+              api.value(dims.zeta)
             ]);
 
             return {
               type: 'path',
               shape: {
-                pathData: windLevel(api.value(dims.speed)),//'M0,0 L0,-24 L-8 -24',//'M31 16l-15-15v9h-26v12h26v9z',
+                pathData: currentLevel(api.value(dims.speed)),
               },
               rotation: -api.value(dims.dir),
               position: point,
               style: api.style({
-                fill: null,
-                stroke: '#555',
+                fill: '#444444',
+                stroke: '#444444',
                 lineWidth: 1
               })
             };
@@ -146,7 +119,7 @@
 
           var option = {
             title:{
-              text:"未来120小时风场时间序列图",
+              text:"未来24小时流场时间序列图",
               left: 'center',
               textStyle:{
                 fontWeight:'bold',
@@ -157,9 +130,9 @@
               trigger: 'axis',
               formatter: function (params) {
                 return [
-                  '预报时次：' + params[0].value[dims.time],
-                  '风速：' + params[0].value[dims.speed].toFixed(2) +'m/s',
-                  '风向：' + (params[0].value[dims.dir]*180/Math.PI).toFixed(2)+ '°'
+                  '流速：' + params[0].value[dims.speed].toFixed(2) +'m/s',
+                  '流向：' + (params[0].value[dims.dir]*180/Math.PI).toFixed(2)+ '°',
+                  '水位：' + params[0].value[dims.zeta].toFixed(2) + 'm'
                 ].join('<br>');
               }
             },
@@ -185,7 +158,7 @@
               }
             },
             yAxis: {
-              name: '风速(m/s)',
+              name: '水位(m)',
               nameLocation: 'middle',
               nameGap: 25,
               axisLine: {
@@ -208,7 +181,7 @@
               renderItem: renderArrow,
               encode: {
                 x: dims.time,
-                y: dims.speed
+                y: dims.zeta
               },
               data: data,
               z: 10
@@ -217,11 +190,11 @@
               symbol: 'none',
               encode: {
                 x: dims.time,
-                y: dims.speed
+                y: dims.zeta
               },
               lineStyle: {
                 normal: {
-                  color: '#FF9900'
+                  color: '#339933'
                 }
               },
               data: data,
@@ -229,8 +202,6 @@
             }]
           };
           this.chart.setOption(option);
-
-
         }
       }
     }

@@ -41,6 +41,14 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('font-awesome-layers', FontAwesomeLayers)
 Vue.component('font-awesome-layers-text', FontAwesomeLayersText)
 
+//公共方法类
+import util from "./util/util.js"
+Vue.prototype.util = util;
+
+
+/*main.js下*/
+import promise from 'es6-promise'
+promise.polyfill()
 
 Vue.config.productionTip = false
 

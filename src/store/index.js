@@ -4,11 +4,13 @@ Vue.use(Vuex)
 // 这里定义初始值
 let state = {
   title:"深中通道海洋环境观测与预报综合显示平台",
-  name:"sztd",
-  category:"1",//管理员1普通用户0
+  name:"",
+  category:"",//管理员1普通用户0
   serverIP:"202.121.180.59",//产品及数据发布IP
   atmExtent:[98.8,7.0,137.5,32.9],
-  waveExtent:[113.300,21.050,114.100, 22.800]
+  atmRefineExtent:[112.3679,21.1480,114.8502, 23.4445],
+  waveExtent:[113.3,22.050,114.100, 22.800],
+  currentExtent:[113.4600,22.0200,113.9600, 22.7800]
 };
 
 const mutations = {

@@ -5,7 +5,24 @@
          :mask-closable="false"
          :draggable="true"
          :footer-hide="true">
-    <el-row style="text-align:center;margin:0 auto">
+    <el-form :inline="true" :model="seaLevelObsForm" class="demo-form-inline" style="text-align:center;margin:0 auto">
+      <el-form-item label="潮位计">
+        <el-select v-model="seaLevelObsForm.name" placeholder="请选择潮位计" size="small" style="width:150px">
+          <el-option label="平台潮位计" value="Tide1"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="起止时间">
+        <DatePicker type="datetimerange" v-model="seaLevelObsForm.timeRange" placeholder="开始时间-结束时间" style="width: 280px"></DatePicker>
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          type="primary"
+          :loading="queryStatus"
+          size="small"
+          @click="querySeaLevelHistory">查询</el-button>
+      </el-form-item>
+    </el-form>
+    <!--el-row style="text-align:center;margin:0 auto">
       <label style="font-size: 14px;line-height:2;">站点：</label>
       <el-dropdown @command="handleCommand">
         <span class="el-dropdown-link" style="line-height:2;">
@@ -24,26 +41,29 @@
         size="small"
         style="margin-left: 30px;"
         @click="querySeaLevelHistory">查询</el-button>
-    </el-row>
+    </el-row-->
     <div id="seaLevelObservationChart" :style="{width: '780px', height: '400px'}"></div>
   </modal>
 </template>
 
 <script>
+  import drawCharts from "./drawCharts"
     export default {
       name: "SeaLevelObservationModal",
       data(){
         return {
           sea_Level_Observation_modal:false,
-          site:"",
-          timeRange:[],
+          seaLevelObsForm:{
+            name:"",
+            timeRange:[],
+          },
+
           chart:"",
           queryStatus:false
         }
       },
       methods: {
         openSeaLevelObservationModal() {
-          this.site = "潮位计1";
           this.sea_Level_Observation_modal = true;
           this.chart = this.$echarts.init(document.getElementById('seaLevelObservationChart'))
           this.chart.clear()
@@ -59,15 +79,16 @@
           var api=`/api/SZTDService/queryTideHistory.action`;
           this.$axios.get(api,{
             params:{
-              id:this.site.substring(3),
-              startTime:this.timeRange[0].getTime(),
-              endTime:this.timeRange[1].getTime()
+              id:this.seaLevelObsForm.name.substring(4),
+              startTime:this.seaLevelObsForm.timeRange[0].getTime(),
+              endTime:this.seaLevelObsForm.timeRange[1].getTime()
             }
           }).then((response)=> {
             var tableData=response.data;
             console.log(tableData);
             if(tableData!=[])
-              this.drawTideChart(tableData);
+              drawCharts.drawTideChart(tableData,this.chart);
+              // this.drawTideChart(tableData);
             else
               this.$confirm('没有相关数据！', '提示', {
                 confirmButtonText: '确定',
@@ -83,80 +104,6 @@
             this.queryStatus=false;
           })
 
-        },
-        drawTideChart(tableData){
-          var wlData = [];
-          var maxWL =0;
-          var minWL=10000;
-          var i=0
-          for(; i < tableData.length;i++){
-            wlData[i]=[tableData[i].dt,tableData[i].wl];
-            maxWL= tableData[i].wl>maxWL?tableData[i].wl:maxWL;
-            minWL=tableData[i].wl<minWL?tableData[i].wl:minWL;
-          }
-
-          var option ={
-            tooltip : {},
-            legend : {
-              data : ['潮位'],
-              orient : 'horizontal',
-              top:'25',
-              right:'100'
-            },
-            xAxis : {
-              name : "时间",
-              nameLocation : 'middle',
-              type : 'time',
-              min :this.timeRange[0] ,
-              max :this.timeRange[1],
-              nameGap : '40',
-            },
-            yAxis:{
-              name : "潮位(cm)",
-              nameLocation : 'end',
-              type : 'value',
-              axisLine : {
-                onZero : false
-              },
-              splitLine : {
-                show : false
-              },
-              min :Math.floor(minWL) ,
-              max :Math.ceil(maxWL),
-              nameGap : '15'
-            },
-            dataZoom : [{
-              type : 'slider',
-              yAxisIndex :0,
-              filterMode : 'empty',
-              startValue : Math.floor(minWL),
-              endValue:Math.ceil(maxWL),
-              left:0,
-              realtime:false,
-              handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-              handleSize: '80%',
-              handleStyle: {
-                color: '#fff',
-                shadowBlur: 3,
-                shadowColor: 'rgba(0, 0, 0, 0.6)',
-                shadowOffsetX: 2,
-                shadowOffsetY: 2
-              }
-            }, {
-              type : 'inside',
-              xAxisIndex : 0,
-              filterMode : 'empty'
-            } ],
-            series : {
-              name : '潮位',
-              type : 'line',
-              symbol:'circle',
-              smooth : true,
-              yAxisIndex : 0,
-              data : wlData
-            }
-          };
-          this.chart.setOption(option);
         }
       }
     }

@@ -1,6 +1,6 @@
 <template>
   <modal width="950"
-         v-model="wind_time_series_modal"
+         v-model="reWind_time_series_modal"
          :mask-closable="false"
          :draggable="true"
          :footer-hide="true">
@@ -10,54 +10,40 @@
       style="position: absolute;left:390px;top:180px;"
       v-show="loadingStatus"
     >
-    <div id="atmWindTimeSeriesChart" :style="{width: '930px', height: '500px'}"></div>
+    <div id="atmRefineWindTimeSeriesChart" :style="{width: '930px', height: '500px'}"></div>
   </modal>
 </template>
 
 <script>
-    import echarts from 'echarts/lib/echarts';
+  import echarts from 'echarts/lib/echarts';
     export default {
-      name: "WindTimeSeriesModal",
-      data() {
+      name: "ReWindTimeSeriesModal",
+      data(){
         return {
-          wind_time_series_modal:false,
-          chart:null,
-          loadingStatus:true
+          reWind_time_series_modal:false,
+          loadingStatus:false,
+          chart:null
         }
       },
       methods:{
-        openWindTimeSeriesModal(key,strDate,e){
+        openReWindTimeSeriesModal(strDate,e){
           //判断是否在数据经纬度范围内
-          if(e[0]>=this.$store.state.atmExtent[0] &
-            e[0]<=this.$store.state.atmExtent[2] &
-            e[1]>=this.$store.state.atmExtent[1] &
-            e[1]<=this.$store.state.atmExtent[3]) {
+          if(e[0]>=this.$store.state.atmRefineExtent[0] &
+            e[0]<=this.$store.state.atmRefineExtent[2] &
+            e[1]>=this.$store.state.atmRefineExtent[1] &
+            e[1]<=this.$store.state.atmRefineExtent[3]) {
             //显示
-            this.wind_time_series_modal = true;
+            this.reWind_time_series_modal = true;
             this.loadingStatus=true;
             //请求nc时间序列数据并绘制图表
-            this.chart = this.$echarts.init(document.getElementById('atmWindTimeSeriesChart'));
+            this.chart = this.$echarts.init(document.getElementById('atmRefineWindTimeSeriesChart'));
             this.chart.clear();
-            var api=`/api/SZTDService/`;
-            switch (key){
-              case "10m":
-                api+=`queryAtmWin10mNcData.action`;
-                break;
-              case "500hpa":
-                api+=`queryAtmWin500hpaNcData.action`;
-                break;
-              case "200hpa":
-                api+=`queryAtmWin200hpaNcData.action`;
-                break;
-            }
-            this.queryWindNCdata(api,strDate,e);
+            this.queryReWindNCdata(strDate,e);
           }
+
         },
-        /**
-         * 请求大气数据十米风场时间序列数据
-         * @params e
-         */
-        queryWindNCdata(api,strDate,e){
+        queryReWindNCdata(strDate,e){
+          var api=`/api/SZTDService/queryAtmReWin10mNcData.action`;
           this.chart.clear();
           this.$axios.get(api,{
             params:{
@@ -69,7 +55,7 @@
             this.loadingStatus=false;
             var tableData=response.data;
             if(tableData!=[])
-              this.drawWindTSChart(tableData);
+              this.drawReWindTSChart(tableData);
             else
               this.$confirm('没有相关数据！', '提示', {
                 confirmButtonText: '确定',
@@ -85,12 +71,7 @@
             this.loadingStatus=false;
           })
         },
-
-        /**
-         * TODO 绘制大气数据十米风场时间序列图
-         * @param tableData
-         */
-        drawWindTSChart(tableData){
+        drawReWindTSChart(tableData){
 
           function windLevel(speed){
             //svg 的坐标系是右为x正方向，下为y正方向，因此为了画出标准的北向风，此处y值全为负值
@@ -229,8 +210,6 @@
             }]
           };
           this.chart.setOption(option);
-
-
         }
       }
     }
