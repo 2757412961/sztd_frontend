@@ -7,7 +7,7 @@
          src="~assets/nmefc.png"
        >
      </a>
-      <h2 id="h_title">
+      <h2 id="h_title" style="font-family:'微软雅黑';font-weight:bold;">
        {{this.$store.state.title}}
      </h2>
     </el-aside>

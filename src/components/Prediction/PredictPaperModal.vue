@@ -170,6 +170,42 @@
         <el-button type="primary" @click="queryFWPrePath">查询</el-button>
       </el-form-item>
     </el-form>
+    <Divider orientation="left" style="font-weight: bold">海流预报单</Divider>
+    <el-form :inline="true" :model="currentForm" class="demo-form-inline" size="mini">
+      <el-form-item label="年">
+        <el-select v-model="currentForm.year" style="width:105px" @change="queryCurrentPre(currentForm.year,-1)">
+          <el-option
+            v-for="item in currentForm.yearList"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="月">
+        <el-select v-model="currentForm.month" style="width:80px" @change="queryCurrentPre(currentForm.year,currentForm.month)">
+          <el-option
+            v-for="item in currentForm.monthList"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="日">
+        <el-select v-model="currentForm.day" style="width:80px">
+          <el-option
+            v-for="item in currentForm.dayList"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="queryCurrentPrePath">查询</el-button>
+      </el-form-item>
+    </el-form>
   </modal>
 
 </template>
@@ -215,6 +251,14 @@
             monthList:[],
             day:'',
             dayList:[],
+          },
+          currentForm:{
+            year: '',
+            yearList:[],
+            month: '',
+            monthList:[],
+            day:'',
+            dayList:[],
           }
         }
       },
@@ -225,7 +269,8 @@
           this.queryDailyPre(-1,-1,-1);
           this.queryTyphPre(-1,-1,-1)
           this.queryTDPre(-1,-1);
-          this.queryFWPre(-1,-1)
+          this.queryFWPre(-1,-1);
+          this.queryCurrentPre(-1,-1)
 
         },
 
@@ -377,6 +422,41 @@
 
           })
         },
+        queryCurrentPre(year,month){
+          var api=`/api/SZTDService/queryCurrentPre.action`;
+          this.$axios.get(api,{
+            params:{
+              year:year,
+              month:month
+            }
+          }).then((response)=> {
+            if(response.data!=""){
+              var data=response.data.split('?')
+              if(data.length>0){
+                switch(data[0]){
+                  case "none":
+                    this.currentForm.yearList=data[1].split(';');
+                    this.currentForm.year=this.currentForm.yearList[this.currentForm.yearList.length-1];
+                  case "year":
+                    this.currentForm.monthList=data[2].split(';');
+                    this.currentForm.month=this.currentForm.monthList[this.currentForm.monthList.length-1];
+                  case "month":
+                    this.currentForm.dayList=data[3].split(';');
+                    this.currentForm.day=this.currentForm.dayList[this.currentForm.dayList.length-1];
+                    break;
+                }
+              }
+            }
+          }).catch((response)=>{
+            //失败回调
+            this.$confirm('服务器失联！', '提示', {
+              confirmButtonText: '确定',
+              type: 'warning'
+            });
+          }).finally((response)=>{
+
+          })
+        },
         queryDailyPrePath() {
           var api=`/api/SZTDService/queryDailyPrePath.action`;
           this.$axios.get(api,{
@@ -469,6 +549,34 @@
               year:this.fourWeekForm.year,
               month:this.fourWeekForm.month,
               day:this.fourWeekForm.day
+            }
+          }).then((response)=> {
+            if(response.data!=""){
+              var url= "http://"+this.$store.state.serverIP + "/SZTDData/" +response.data;
+              window.open(url);
+            }
+            else
+              this.$confirm('没有相关数据！', '提示', {
+                confirmButtonText: '确定',
+                type: 'warning'
+              });
+          }).catch((response)=>{
+            //失败回调
+            this.$confirm('服务器失联！', '提示', {
+              confirmButtonText: '确定',
+              type: 'warning'
+            });
+          }).finally((response)=>{
+
+          })
+        },
+        queryCurrentPrePath(){
+          var api=`/api/SZTDService/queryCurrentPrePath.action`;
+          this.$axios.get(api,{
+            params:{
+              year:this.currentForm.year,
+              month:this.currentForm.month,
+              day:this.currentForm.day
             }
           }).then((response)=> {
             if(response.data!=""){

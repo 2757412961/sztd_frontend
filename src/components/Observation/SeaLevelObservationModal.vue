@@ -47,7 +47,7 @@
 </template>
 
 <script>
-  import drawCharts from "./drawCharts"
+  import drawCharts from "../../util/drawCharts"
     export default {
       name: "SeaLevelObservationModal",
       data(){
@@ -85,8 +85,7 @@
             }
           }).then((response)=> {
             var tableData=response.data;
-            console.log(tableData);
-            if(tableData!=[])
+            if(tableData.length!=0)
               drawCharts.drawTideChart(tableData,this.chart);
               // this.drawTideChart(tableData);
             else

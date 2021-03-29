@@ -1,5 +1,5 @@
 <template>
-  <modal width="230"
+  <modal width="335"
          v-model="weather_pro_modal"
          title="大气数值预报产品"
          :mask-closable="false"
@@ -8,42 +8,45 @@
          @on-cancel="closeModal">
     <el-form :inline="true"  :model="weatherProForm" class="demo-form-inline" size="mini">
       <el-form-item label="起报日期">
-        <DatePicker type="date" v-model="weatherProForm.stDate" placeholder="选择日期"  style="width: 120px"></DatePicker>
-      </el-form-item>
-      <el-form-item label="预报时次">
-        <el-select v-model="weatherProForm.preTime" placeholder="选择预报时次" style="width: 120px">
-          <el-option
-            v-for="item in weatherProForm.preTimeList"
-            :key="item"
-            :label="item"
-            :value="item">
-          </el-option>
-        </el-select>
+        <DatePicker type="date" v-model="weatherProForm.stDate" placeholder="选择日期"  style="width: 225px"></DatePicker>
       </el-form-item>
       <el-form-item label="垂直高度">
-        <el-select v-model="weatherProForm.verticalLayer" placeholder="选择垂直层" style="width: 120px" @change="changeCBDisable">
+        <el-select v-model="weatherProForm.verticalLayer" placeholder="选择垂直层" style="width: 225px" @change="changeCBDisable">
           <el-option label="海平面" value="surface"></el-option>
           <el-option label="500hPa" value="500hpa"></el-option>
           <el-option label="200hPa" value="200hpa"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="数值产品">
+      <el-form-item label="数值产品" style="margin-bottom: 10px">
           <el-checkbox-group v-model="weatherProForm.proList">
             <el-checkbox label="气压场" style="margin-left: 10px;" :disabled="cb_dis.press"></el-checkbox>
-            <el-checkbox label="10m风场" style="margin-right: 0;" :disabled="cb_dis.tenWind"></el-checkbox>
-            <el-checkbox label="6h累计降水" style="margin-left: 10px;" :disabled="cb_dis.rain"></el-checkbox>
-            <el-checkbox label="风场" style="margin-right: 0;" :disabled="cb_dis.wind"></el-checkbox>
-            <el-checkbox label="高度场" style="margin-left: 10px;" :disabled="cb_dis.height"></el-checkbox>
+            <el-checkbox label="10m风场" style="margin-left: 8px;" :disabled="cb_dis.tenWind"></el-checkbox>
+            <el-checkbox label="6h降水" style="margin-right: 0px;" :disabled="cb_dis.rain"></el-checkbox>
+            <el-checkbox label="风场" style="margin-left: 10px;" :disabled="cb_dis.wind"></el-checkbox>
+            <el-checkbox label="高度场" style="margin-left: 8px;" :disabled="cb_dis.height"></el-checkbox>
             <el-checkbox label="温度场"  style="margin-right: 0;" :disabled="cb_dis.temp"></el-checkbox>
 
           </el-checkbox-group>
+      </el-form-item>
+      <el-form-item label="预报时次" style="line-height:40px">
+        <el-slider v-model="weatherProForm.preTime" :marks="weatherProForm.marks" @change="loadWeatherProToMap" style="width: 200px ;height: 50px;margin-left: 10px;"  :min="0" :max="168">
+          <el-option
+          v-for="item in weatherProForm.preTimeList"
+          :key="item"
+          :label="item"
+          :value="item">
+          </el-option>
+        </el-slider>
+      </el-form-item>
+      <el-form-item label="预报时间" style="line-height:40px">
+        <div style="line-height:42px; margin-left: 45px;">{{forecastTime}}</div>
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
           :loading="loadStatus"
           size="mini"
-          style="width:180px;margin-left: 10px;"
+          style="width:270px;margin-left: 16px;"
           @click="loadWeatherProToMap">加载</el-button>
       </el-form-item>
     </el-form>
@@ -67,12 +70,35 @@
           },
           weatherProForm:{
             stDate:null,
-            preTime:'',
+            // preTime:'',
+            preTime:[0, 168],
+            marks: {
+              0: '0',
+              24: '24',
+              48: '48',
+              72: '72',
+              96: '96',
+              120: '120',
+              144: '144',
+              168: '168',
+            },
             preTimeList: Array.apply(null, Array(169)).map(function(item, i) {return i}),
             verticalLayer:'',
-            proList:[]
+            proList:[],
           },
 
+        }
+      },
+      computed:{
+        //联动显示“预报时间”
+        // 计算属性的 getter
+        forecastTime: function () {
+          // `this` 指向 vm 实例
+          var time="";
+          if(this.weatherProForm.stDate!=null) {
+            time = this.util.formatDateTimeForecastTime(this.weatherProForm.stDate, this.weatherProForm.preTime);
+          }
+          return time;
         }
       },
       methods:{
@@ -152,7 +178,7 @@
                   var windUrl2=url+"Atm_10mWindU10V10_"+this.weatherProForm.preTime+"_"+stDateStr+".png";
                   this.$emit('addPic2map',windUrl2,extent);
                 }
-                if(this.weatherProForm.proList[i]=="6h累计降水"){
+                if(this.weatherProForm.proList[i]=="6h降水"){
                   //近六小时累积降水图
                   var rainUrl=url+"Atm_RaincRainnc_"+this.weatherProForm.preTime+"_"+stDateStr+".png";
                   this.$emit('addPic2map',rainUrl,extent);

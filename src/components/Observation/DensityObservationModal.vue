@@ -1,5 +1,5 @@
 <template>
-  <modal width="800"
+  <modal width="1000"
          v-model="density_observation_modal"
          title="密度观测数据查询"
          :mask-closable="false"
@@ -8,11 +8,14 @@
 
     <el-form :inline="true" :model="densityObsForm" class="demo-form-inline" style="text-align:center;margin:0 auto">
       <el-form-item label="CTD">
-        <el-select v-model="densityObsForm.name" placeholder="请选择CTD" size="small" style="width:150px">
-          <el-option label="平台表层CTD" value="CTD2"></el-option>
-          <el-option label="平台底层CTD" value="CTD1"></el-option>
-          <!--el-option label="浮标底层CTD" value="CTD3"></el-option>
-          <el-option label="浮标表层CTD" value="CTD4"></el-option-->
+        <el-select size="mini" v-model="densityObsForm.name" style="width:300px"
+                   multiple placeholder="请选择CTD">
+          <el-option
+            v-for="item in densityObsForm.nameList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="起止时间">
@@ -26,19 +29,38 @@
           @click="queryDensityHistory">查询</el-button>
       </el-form-item>
     </el-form>
-    <div id="densityObservationChart" :style="{width: '780px', height: '400px'}"></div>
+    <div id="densityObservationChart" :style="{width: '950px', height: '400px'}"></div>
   </modal>
 </template>
 
 <script>
-  import drawCharts from "./drawCharts"
+  import drawCharts from "../../util/drawCharts"
     export default {
       name: "DensityObservationModal",
       data(){
         return {
           density_observation_modal:false,
           densityObsForm:{
-            name:"",
+            name:[],
+            nameList:
+              [
+                {
+                  value: 2,
+                  label: '2号-平台表层CTD',
+                },
+                {
+                  value: 1,
+                  label: '1号-平台底层CTD'
+                },
+                {
+                  value: 4,
+                  label: '4号-浮标表层CTD'
+                },
+                // {
+                //   value: 3,
+                //   label: '3号-浮标底层CTD'
+                // }
+              ],
             timeRange:[],
           },
           chart:"",
@@ -57,14 +79,13 @@
           var api=`/api/SZTDService/queryCtdHistory.action`;
           this.$axios.get(api,{
             params:{
-              id:this.densityObsForm.name.substring(3),
               startTime:this.densityObsForm.timeRange[0].getTime(),
               endTime:this.densityObsForm.timeRange[1].getTime()
             }
           }).then((response)=> {
             var tableData=response.data;
             if(tableData.length!=0)
-              drawCharts.drawCTDChart(tableData,this.chart);
+              drawCharts.drawCTDMultiChart(tableData,this.densityObsForm.name,this.chart);
             else
               this.$confirm('没有相关数据！', '提示', {
                 confirmButtonText: '确定',

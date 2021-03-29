@@ -1,5 +1,5 @@
 <template>
-  <modal width="230"
+  <modal width="310"
          v-model="current_pro_modal"
          title="海流数值预报产品"
          :mask-closable="false"
@@ -8,20 +8,10 @@
          @on-cancel="closeModal">
     <el-form :inline="true"  :model="currentProForm" class="demo-form-inline" size="mini">
       <el-form-item label="起报日期">
-        <DatePicker type="date" v-model="currentProForm.stDate" placeholder="选择日期"  style="width: 120px"></DatePicker>
-      </el-form-item>
-      <el-form-item label="预报时次">
-        <el-select v-model="currentProForm.preTime" placeholder="选择预报时次" style="width: 120px">
-          <el-option
-            v-for="item in currentProForm.preTimeList"
-            :key="item"
-            :label="item"
-            :value="item">
-          </el-option>
-        </el-select>
+        <DatePicker type="date" v-model="currentProForm.stDate" placeholder="选择日期"  style="width: 200px"></DatePicker>
       </el-form-item>
       <el-form-item label="垂直层级">
-        <el-select v-model="currentProForm.verticalLayer" placeholder="选择垂直层" style="width: 120px" @change="changeVerticalLayer">
+        <el-select v-model="currentProForm.verticalLayer" placeholder="选择垂直层" style="width: 200px" @change="changeVerticalLayer">
           <el-option
             v-for="item in currentProForm.verticalLayerList"
             :key="item"
@@ -30,19 +20,32 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="数值产品">
+      <el-form-item label="数值产品" style="margin-bottom: 0px">
         <el-checkbox-group v-model="currentProForm.proList">
-          <el-checkbox label="流场" style="margin-left: 10px;"></el-checkbox>
-          <el-checkbox label="盐度" style="margin-right: 0;"></el-checkbox>
-          <el-checkbox label="水位" style="margin-left: 10px;" :disabled="currentProForm.cb_dis_seaLevel"></el-checkbox>
+          <el-checkbox label="流场" style="margin-right:10px;"></el-checkbox>
+          <el-checkbox label="盐度" style="margin-right:10px;"></el-checkbox>
+          <el-checkbox label="水位" style="margin-right: 0px;" :disabled="currentProForm.cb_dis_seaLevel"></el-checkbox>
         </el-checkbox-group>
+      </el-form-item>
+      <el-form-item label="预报时次" style="line-height:35px">
+        <el-slider v-model="currentProForm.preTime" :marks="currentProForm.marks"  @change="loadCurrentProToMap" style="width: 180px ;height: 50px;margin-left: 10px;"  :min="0" :max="24">
+          <el-option
+            v-for="item in currentProForm.preTimeList"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-slider>
+      </el-form-item>
+      <el-form-item label="预报时间" style="line-height:40px">
+        <div style="line-height:42px; margin-left: 35px;">{{forecastTime}}</div>
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
           :loading="loadStatus"
           size="mini"
-          style="width:180px;margin-left: 10px;"
+          style="width:240px;margin-left: 20px;"
           @click="loadCurrentProToMap">加载</el-button>
       </el-form-item>
     </el-form>
@@ -59,13 +62,36 @@
           loadStatus:false,
           currentProForm:{
             stDate:null,
-            preTime:'',
+            // preTime:'',
+            preTime:[0, 24],
+            marks: {
+              0: '0',
+              4: '4',
+              8: '8',
+              12: '12',
+              16: '16',
+              20: '20',
+              24: '24',
+            },
+            //Array(25) 25为nc文件时次个数
             preTimeList: Array.apply(null, Array(25)).map(function(item, i) {return i}),
             verticalLayer:null,
             verticalLayerList:Array.apply(null, Array(20)).map(function(item, i) {return i+1}),
             proList:[],
             cb_dis_seaLevel:false
           },
+        }
+      },
+      computed:{
+        //联动显示“预报时间”
+        // 计算属性的 getter
+        forecastTime: function () {
+          // `this` 指向 vm 实例
+          var time="";
+          if(this.currentProForm.stDate!=null) {
+            time = this.util.formatDateTimeForecastTime(this.currentProForm.stDate, this.currentProForm.preTime);
+          }
+          return time;
         }
       },
       methods:{

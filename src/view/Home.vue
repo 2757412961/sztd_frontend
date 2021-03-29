@@ -9,15 +9,18 @@
       <!--侧边栏-->
       <!--el-aside width="300px">
         <router-view/>    </el-aside-->
-      <el-aside style="width:auto">
+      <el-aside style="width:auto;">
         <LeftNav @openModal="openModal"></LeftNav>
       </el-aside>
       <el-main style="padding:0px;margin-left:60px">
-          <map-layout ref="mapLayout" @drawWindTimeSeries="drawWindTimeSeries" @drawCurrentTimeSeries="drawCurrentTimeSeries"></map-layout>
+          <map-layout ref="mapLayout" @openRealTimeMonitorModalHome="openRealTimeMonitorModalHome()" @drawWindTimeSeries="drawWindTimeSeries" @drawCurrentTimeSeries="drawCurrentTimeSeries" @drawWaveTimeSeries="drawWaveTimeSeries"></map-layout>
       </el-main>
     </el-container>
+    <BuoyCurrentObservationModal ref="buoyCurrentObservationModal"></BuoyCurrentObservationModal>
+    <BuoyWaveObservationModal ref="buoyWaveObservationModal"></BuoyWaveObservationModal>
     <DensityObservationModal ref="densityObservationModal"></DensityObservationModal>
-    <SeaLevelObservationModal ref="seaLevelObservationMaodal"></SeaLevelObservationModal>
+    <SeaLevelObservationModal ref="seaLevelObservationModal"></SeaLevelObservationModal>
+    <WeatherSiteObservationModal ref="weatherSiteObservationModal"></WeatherSiteObservationModal>
     <PredictPaperModal ref="predictPaperModal"></PredictPaperModal>
     <WeatherProModal ref="weatherProModal" @addPic2map="addPic2map" @cleanMapPro="cleanMapPro"></WeatherProModal>
     <RefineWeaProModal ref="refineWeaProModal" @addPic2map="addPic2map" @cleanMapPro="cleanMapPro"></RefineWeaProModal>
@@ -26,6 +29,10 @@
     <WindTimeSeriesModal ref="windTimeSeriesModal"></WindTimeSeriesModal>
     <CurrentTimeSeriesModal ref="currentTimeSeriesModal"></CurrentTimeSeriesModal>
     <ReWindTimeSeriesModal ref="reWindTimeSeriesModal"></ReWindTimeSeriesModal>
+    <WaveTimeSeriesModal ref="waveTimeSeriesModal"></WaveTimeSeriesModal>
+    <RealTimeMonitorModal ref="realTimeMonitorModal"></RealTimeMonitorModal>
+    <HistoryMonitorModal ref="historyMonitorModal"></HistoryMonitorModal>
+    <ForecastAllMonitorModal ref="forecastAllMonitorModal"></ForecastAllMonitorModal>
   </el-container>
 </template>
 
@@ -34,16 +41,23 @@
     import MapLayout from "./MapLayout";
     import HeadNav from "./HeadNav";
     import LeftNav from "./LeftNav";
-    import PredictPaperModal from "../components/PredictPaperModal";
+    import PredictPaperModal from "../components/Prediction/PredictPaperModal";
     import WeatherProModal from "../components/Production/WeatherProModal";
     import WaveProModal from "../components/Production/WaveProModal";
-    import WindTimeSeriesModal from "../components/WindTimeSeriesModal";
+    import WindTimeSeriesModal from "../components/Map/Timeseries/WindTimeSeriesModal";
+    import BuoyCurrentObservationModal from "../components/Observation/BuoyCurrentObservationModal";
+    import BuoyWaveObservationModal from "../components/Observation/BuoyWaveObservationModal";
     import DensityObservationModal from "../components/Observation/DensityObservationModal";
     import SeaLevelObservationModal from "../components/Observation/SeaLevelObservationModal";
+    import WeatherSiteObservationModal from "../components/Observation/WeatherSiteObservationModal";
     import RefineWeaProModal from "../components/Production/RefineWeaProModal";
     import CurrentProModal from "../components/Production/CurrentProModal";
-    import CurrentTimeSeriesModal from "../components/CurrentTimeSeriesModal";
-    import ReWindTimeSeriesModal from "../components/ReWindTimeSeriesModal";
+    import CurrentTimeSeriesModal from "../components/Map/Timeseries/CurrentTimeSeriesModal";
+    import ReWindTimeSeriesModal from "../components/Map/Timeseries/ReWindTimeSeriesModal";
+    import WaveTimeSeriesModal from "../components/Map/Timeseries/WaveTimeSeriesModal";
+    import RealTimeMonitorModal from "../components/Monitor/RealTimeMonitorModal";
+    import HistoryMonitorModal from "../components/Monitor/HistoryMonitorModal";
+    import ForecastAllMonitorModal from "../components/Monitor/ForecastAllMonitorModal";
     export default {
       name: "home",
       components: {
@@ -51,11 +65,23 @@
         CurrentTimeSeriesModal,
         CurrentProModal,
         RefineWeaProModal,
+        WeatherSiteObservationModal,
+        BuoyCurrentObservationModal,
+        BuoyWaveObservationModal,
         SeaLevelObservationModal,
         DensityObservationModal,
         WindTimeSeriesModal,
+        WaveTimeSeriesModal,
         WaveProModal,
-        WeatherProModal, PredictPaperModal, LeftNav, HeadNav, MapLayout,HeadNav},
+        WeatherProModal,
+        PredictPaperModal,
+        RealTimeMonitorModal,
+        HistoryMonitorModal,
+        ForecastAllMonitorModal,
+        LeftNav,
+        HeadNav,
+        MapLayout,
+        HeadNav},
       created:function(){
         if(this.$store.state.name==""){
           this.$router.push({
@@ -77,11 +103,20 @@
       methods:{
         openModal(key){
           switch(key){
+            case "buoyCurrentObservation":
+              this.$refs.buoyCurrentObservationModal.openBuoyCurrentObservationModal();
+              break;
+            case "buoyWaveObservation":
+              this.$refs.buoyWaveObservationModal.openBuoyWaveObservationModal();
+              break;
             case "densityObservation":
               this.$refs.densityObservationModal.openDensityObservationModal();
               break;
             case "seaLevelObservation":
-              this.$refs.seaLevelObservationMaodal.openSeaLevelObservationModal();
+              this.$refs.seaLevelObservationModal.openSeaLevelObservationModal();
+              break;
+            case "weatherSiteObservation":
+              this.$refs.weatherSiteObservationModal.openWeatherSiteObservationModal();
               break;
             case "predictPaper":
               this.$refs.predictPaperModal.openPredictPaperModal();
@@ -89,19 +124,31 @@
             case "weatherProduction":
               this.$refs.weatherProModal.openWeatherProModal();
               break;
-            case "refineWeatherProduction":
-              this.$refs.refineWeaProModal.openRefineWeaProModal();
-              break;
             case "waveProduction":
               this.$refs.waveProModal.openWaveProModal();
               break;
-            case "currentProduction":
-              this.$refs.currentProModal.openCurrentProModal();
+            case "realTimeMonitor":
+              this.$refs.realTimeMonitorModal.openRealTimeMonitorModal();
               break;
-
-            case "buoyHistory":
+            case "historyMonitor":
+              this.$refs.historyMonitorModal.openHistoryMonitorModal();
+              break;
+            case "forecastAllMonitor":
+              this.$refs.forecastAllMonitorModal.openForecastAllMonitorModal();
+              break;
+            case "refineWeatherProduction":
+              this.$refs.mapLayout.openRefineWeaProForm();
+              break;
+            case "refineWaveProduction":
+              this.$refs.mapLayout.openRefineWaveProForm();
+              break;
+            case "refineCurrentProduction":
+              this.$refs.mapLayout.openRefineCurrentProForm();
               break;
           }
+        },
+        openRealTimeMonitorModalHome(){
+          this.$refs.realTimeMonitorModal.openRealTimeMonitorModal();
         },
         drawWindTimeSeries(key,strDate,lonlat){
           switch(key){
@@ -122,6 +169,16 @@
         },
         drawCurrentTimeSeries(siglay,strDate,lonlat){
           this.$refs.currentTimeSeriesModal.openCurrentTimeSeriesModal(siglay,strDate,lonlat);
+        },
+        drawWaveTimeSeries(key,strDate,lonlat){
+          switch(key){
+            case "HSDIRWaveTimeSeries":
+              this.$refs.waveTimeSeriesModal.openWaveTimeSeriesModal("HSDIR",strDate,lonlat);
+              break;
+            case "TPSWaveTimeSeries":
+              this.$refs.waveTimeSeriesModal.openWaveTimeSeriesModal("TPS",strDate,lonlat);
+              break;
+          }
         },
         addPic2map(url,extent){
           this.$refs.mapLayout.addPictureToMap(url,extent)

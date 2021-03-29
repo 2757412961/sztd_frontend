@@ -1,5 +1,5 @@
 <template>
-  <modal width="230"
+  <modal width="310"
          v-model="refine_wea_pro_modal"
          title="精细化大气数值预报产品"
          :mask-closable="false"
@@ -8,32 +8,34 @@
          @on-cancel="closeModal">
     <el-form :inline="true"  :model="refineWeaProForm" class="demo-form-inline" size="mini">
       <el-form-item label="起报日期">
-        <DatePicker type="date" v-model="refineWeaProForm.stDate" placeholder="选择日期"  style="width: 120px"></DatePicker>
+        <DatePicker type="date" v-model="refineWeaProForm.stDate" placeholder="选择日期"  style="width: 200px"></DatePicker>
       </el-form-item>
-      <el-form-item label="预报时次">
-        <el-select v-model="refineWeaProForm.preTime" placeholder="选择预报时次" style="width: 120px">
+      <el-form-item label="数值产品" style="margin-bottom: 10px">
+        <el-checkbox-group v-model="refineWeaProForm.proList">
+          <el-checkbox label="气压场" style="margin-right:10px;"></el-checkbox>
+          <el-checkbox label="风场" style="margin-right:10px;"></el-checkbox>
+          <el-checkbox label="降水" style="margin-right: 0px;"></el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
+      <el-form-item label="预报时次" style="line-height:35px">
+        <el-slider v-model="refineWeaProForm.preTime" :marks="refineWeaProForm.marks" @change="loadRefineWeaProToMap" style="width: 180px ;height: 50px;margin-left: 10px;"  :min="0" :max="168">
           <el-option
             v-for="item in refineWeaProForm.preTimeList"
             :key="item"
             :label="item"
             :value="item">
           </el-option>
-        </el-select>
+        </el-slider>
       </el-form-item>
-      <el-form-item label="数值产品">
-        <el-checkbox-group v-model="refineWeaProForm.proList">
-          <el-checkbox label="气压场" style="margin-left: 10px;"></el-checkbox>
-          <el-checkbox label="10m风场" style="margin-right: 0;"></el-checkbox>
-          <el-checkbox label="降水量" style="margin-left: 10px;"></el-checkbox>
-
-        </el-checkbox-group>
+      <el-form-item label="预报时间" style="line-height:40px">
+        <div style="line-height:42px; margin-left: 35px;">{{forecastTime}}</div>
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
           :loading="loadStatus"
           size="mini"
-          style="width:180px;margin-left: 10px;"
+          style="width:240px;margin-left: 20px;"
           @click="loadRefineWeaProToMap">加载</el-button>
       </el-form-item>
     </el-form>
@@ -49,10 +51,33 @@
           loadStatus:false,
           refineWeaProForm:{
             stDate:null,
-            preTime:'',
+            // preTime:'',
+            preTime:[0, 168],
+            marks: {
+              0: '0',
+              24: '24',
+              48: '48',
+              72: '72',
+              96: '96',
+              120: '120',
+              144: '144',
+              168: '168',
+            },
             preTimeList: Array.apply(null, Array(169)).map(function(item, i) {return i}),
             proList:[]
           },
+        }
+      },
+      computed:{
+        //联动显示“预报时间”
+        // 计算属性的 getter
+        forecastTime: function () {
+          // `this` 指向 vm 实例
+          var time="";
+          if(this.refineWeaProForm.stDate!=null) {
+            time = this.util.formatDateTimeForecastTime(this.refineWeaProForm.stDate, this.refineWeaProForm.preTime);
+          }
+          return time;
         }
       },
       methods: {
@@ -106,7 +131,7 @@
               var pressUrl=url+"AtmRefine_10mSLP_"+this.refineWeaProForm.preTime+"_"+stDateStr+"_L6.png";
               this.$emit('addPic2map', pressUrl, extent);
             }
-            if(this.refineWeaProForm.proList[i]=="10m风场"){
+            if(this.refineWeaProForm.proList[i]=="风场"){
               //风力填色图
               var windUrl2=url+"AtmRefine_10mWindU10V10_"+this.refineWeaProForm.preTime+"_"+stDateStr+".png";
               this.$emit('addPic2map',windUrl2,extent);
@@ -114,7 +139,7 @@
               var windUrl1=url+"AtmRefine_10mWindVane_"+this.refineWeaProForm.preTime+"_"+stDateStr+"_L6.png";
               this.$emit('addPic2map',windUrl1,extent);
             }
-            if(this.refineWeaProForm.proList[i]=="降水量"){
+            if(this.refineWeaProForm.proList[i]=="降水"){
               //降水量
               var rainUrl=url+"AtmRefine_Rainnc_"+this.refineWeaProForm.preTime+"_"+stDateStr+".png";
               this.$emit('addPic2map',rainUrl,extent);
