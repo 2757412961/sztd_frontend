@@ -239,24 +239,23 @@ export default {
    */
   drawCTDMultiChart(tableData, name, chart) {
     //先声明一维
+    let arrSize = 8; // 暂时设置8个大小
     var densityData = [];
     var tempData = [];
 
-    var maxDensityAll = [0, 0, 0, 0];
-    var minDensityAll = [10000, 10000, 10000, 10000];
-    var maxTempAll = [0, 0, 0, 0];
-    var minTempAll = [100, 100, 100, 100];
-
+    var maxDensityAll = new Array(arrSize).fill(0);
+    var minDensityAll = new Array(arrSize).fill(10000);
+    var maxTempAll = new Array(arrSize).fill(0);
+    var minTempAll = new Array(arrSize).fill(100);
 
     var minDateTemp = new Date('2200-01-01 00:00:00').getTime();
     var maxDateTemp = new Date('2000-01-01 00:00:00').getTime();
-    var minDateAll = [minDateTemp, minDateTemp, minDateTemp, minDateTemp];
-    var maxDateAll = [maxDateTemp, maxDateTemp, maxDateTemp, maxDateTemp];
+    var minDateAll = new Array(arrSize).fill(minDateTemp);
+    var maxDateAll = new Array(arrSize).fill(maxDateTemp);
 
     // 根据name列表筛选数据，不包括所有的数据
     for (var filteri = 0; filteri < name.length; filteri++) {
       var i = name[filteri] - 1;
-    // for (var i = 0; i < tableData.length; i++) {
       var num = tableData[i].length;
       //声明二维，每一个一维数组里面的一个元素都是一个数组
       densityData[i] = new Array();
@@ -283,7 +282,7 @@ export default {
     var maxDate = maxDateAll[0];
     var minDate = minDateAll[0];
 
-    for (var i = 1; i < 4; i++) {
+    for (var i = 1; i < arrSize; i++) {
       //求四个CTD全部的最大最小值
       maxDensity = maxDensityAll[i] > maxDensity ? maxDensityAll[i] : maxDensity;
       minDensity = minDensityAll[i] < minDensity ? minDensityAll[i] : minDensity;
@@ -299,19 +298,25 @@ export default {
     nameAll[1] = '2号-平台表层CTD';
     nameAll[2] = '3号-浮标底层CTD';
     nameAll[3] = '4号-浮标表层CTD';
+    nameAll[4] = '1号-航标CTD';
+    nameAll[5] = '2号-航标CTD';
 
     //temp红色系列
     var tempColor = [];
-    tempColor[0] = '#8B1A1A';
-    tempColor[1] = '#EE0000';
+    tempColor[0] = '#8b1a1a';
+    tempColor[1] = '#ee0000';
     tempColor[2] = '#FF00FF';
     tempColor[3] = '#FFAEB9';
+    tempColor[4] = '#8e2768';
+    tempColor[5] = '#4b040e';
     //density蓝色系列
     var densityColor = [];
     densityColor[0] = '#00008B';
     densityColor[1] = '#4169E1';
     densityColor[2] = '#00BFFF';
     densityColor[3] = '#87CEFA';
+    densityColor[4] = '#19CAAD';
+    densityColor[5] = '#D6D5B7';
 
     var chartTitle = "";
 
@@ -350,8 +355,7 @@ export default {
       series.push(seriesTemp2);
       if (i == 0) {
         chartTitle = chartTitle + nameAll[name[i] - 1];
-      }
-      else {
+      } else {
         chartTitle = chartTitle + '、' + nameAll[name[i] - 1];
       }
     }
@@ -1811,8 +1815,7 @@ export default {
     for (var i = 0; i < 7; i++) {
       if (tableData.adcpinfoNewList[i] != null) {
         tableDataInfoList[i] = tableData.adcpinfoNewList[i];
-      }
-      else {
+      } else {
         tableDataInfoList[i] = "";
       }
     }
@@ -1821,8 +1824,7 @@ export default {
     for (var i = 0; i < 7; i++) {
       if (tableData.adcplevNewListAll[i] != null) {
         tableDataLevList[i] = tableData.adcplevNewListAll[i];
-      }
-      else {
+      } else {
         tableDataLevList[i] = "";
         tableDataInfoList[i].dt = "";
         tableDataInfoList[i].p = "";
@@ -1877,8 +1879,7 @@ export default {
     for (var i = 0; i < 7; i++) {
       if (tableDataInfoList[i].length != 0) {
         titleTempText[i] = position[i] + '（P:' + tableDataInfoList[i].p + ' R:' + tableDataInfoList[i].r + '）';
-      }
-      else {
+      } else {
         titleTempText[i] = position[i] + '（P:  Null   R: Null）';
       }
     }
@@ -1887,8 +1888,7 @@ export default {
     for (var i = 0; i < 7; i++) {
       if (tableDataInfoList[i].length != 0) {
         titleTempSubtext[i] = util.formatDateTime(new Date(tableDataInfoList[i].dt));
-      }
-      else {
+      } else {
         titleTempSubtext[i] = "";
       }
     }
@@ -2002,8 +2002,7 @@ export default {
                 '流速：' + params.value[1].toFixed(3) + 'm/s',
                 '流向：' + (0 - (Math.atan2(params.value[2], params.value[3]) * 180 / Math.PI).toFixed(2)) + '°',//Math.atan2(api.value(dims.u), api.value(dims.v)),弧度转角度
               ].join('<br>');
-            }
-            else {
+            } else {
               return [
                 '水深：' + params.value[1] + 'm',
                 '流速：' + params.value[0].toFixed(3) + 'm/s',
@@ -2225,8 +2224,7 @@ export default {
                 '流向：' + (0 - (Math.atan2(params.value[2], params.value[3]) * 180 / Math.PI).toFixed(2)) + '°',//Math.atan2(api.value(dims.u), api.value(dims.v)),弧度转角度
                 '时刻：' + util.formatDateTime(new Date(params.value[4]))
               ].join('<br>');
-            }
-            else {
+            } else {
               return [
                 '水深：' + params.value[1] + 'm',
                 '流速：' + params.value[0].toFixed(3) + 'm/s',
@@ -2462,8 +2460,7 @@ export default {
                 '流向：' + (0 - (Math.atan2(params.value[2], params.value[3]) * 180 / Math.PI).toFixed(2)) + '°',//Math.atan2(api.value(dims.u), api.value(dims.v)),弧度转角度
                 '时刻：' + util.formatDateTime(new Date(params.value[1]))
               ].join('<br>');
-            }
-            else {
+            } else {
               return [
                 '水深：' + params.value[4] + 'm',
                 '流速：' + params.value[1].toFixed(3) + 'm/s',

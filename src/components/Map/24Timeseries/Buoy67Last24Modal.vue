@@ -1,5 +1,5 @@
 <template>
-  <modal width="760"
+  <modal width="1200"
          v-model="buoy67_last24_modal"
          title="6号浮标最近24小时数据时间序列图"
          :mask-closable="false"
@@ -22,16 +22,34 @@
         </el-form-item>
       </el-form>
       <el-row>
-        <div id="buoy67CurrentFlowVChartDIV" :style="{width: '650px', height: '300px'}"></div>
-      </el-row>
-      <el-row>
-        <div id="buoy67WaveWHChartDIV" :style="{width: '650px', height: '300px'}"></div>
-      </el-row>
-      <el-row>
-        <div id="buoy67WaveWHTChartDIV" :style="{width: '650px', height: '300px'}"></div>
-      </el-row>
-      <el-row>
-        <div id="buoy67CtdChartDIV" :style="{width: '700px', height: '300px'}"></div>
+        <el-col :span="12">
+          <div id="buoy67CurrentFlowVChartDIV" :style="{width: '580px', height: '300px'}"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="buoy67WaveWHChartDIV" :style="{width: '580px', height: '300px'}"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="buoy67WaveWHTChartDIV" :style="{width: '580px', height: '300px'}"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="buoy67CtdChartDIV" :style="{width: '580px', height: '300px'}"></div>
+        </el-col>
+
+        <el-col :span="12">
+          <div id="taAvgChartSite45" :style="{width: '580px', height: '230px'}"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="rhAvgChartSite45" :style="{width: '580px', height: '230px'}"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="wsWvc1ChartSite45" :style="{width: '580px', height: '230px'}"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="paAvgChartSite45" :style="{width: '580px', height: '230px'}"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="rainChartSite45" :style="{width: '580px', height: '230px'}"></div>
+        </el-col>
       </el-row>
     </el-scrollbar>
   </modal>
@@ -44,7 +62,8 @@ export default {
   name: "Buoy67Last24Modal",
   data() {
     return {
-      buoyId: 6,
+      buoyId: null,
+      siteId: null,
       labelTemp: '10m平均',
       buoy67_last24_modal: false,
       buoy67Last24Form: {
@@ -121,21 +140,39 @@ export default {
       buoy67CtdChart: null,
       buoy67WaveWHChart: null,
       buoy67WaveWHTChart: null,
+
+      taAvgChartSite2: null,
+      rhAvgChartSite2: null,
+      wsWvc1ChartSite2: null,
+      paAvgChartSite2: null,
+      rainChartSite2: null,
     }
   },
   methods: {
     openBuoy67Last24Modal(id) {
       this.buoyId = id;
+      this.siteId = id - 2;
       this.buoy67_last24_modal = true;
 
       this.buoy67CurrentFlowVChart = this.$echarts.init(document.getElementById('buoy67CurrentFlowVChartDIV'));
       this.buoy67WaveWHChart = this.$echarts.init(document.getElementById('buoy67WaveWHChartDIV'));
       this.buoy67WaveWHTChart = this.$echarts.init(document.getElementById('buoy67WaveWHTChartDIV'));
       this.buoy67CtdChart = this.$echarts.init(document.getElementById('buoy67CtdChartDIV'));
+      this.taAvgChartSite45 = this.$echarts.init(document.getElementById('taAvgChartSite45'));
+      this.rhAvgChartSite45 = this.$echarts.init(document.getElementById('rhAvgChartSite45'));
+      this.wsWvc1ChartSite45 = this.$echarts.init(document.getElementById('wsWvc1ChartSite45'));
+      this.paAvgChartSite45 = this.$echarts.init(document.getElementById('paAvgChartSite45'));
+      this.rainChartSite45 = this.$echarts.init(document.getElementById('rainChartSite45'));
+
+      this.taAvgChartSite45.clear();
+      this.rhAvgChartSite45.clear();
+      this.wsWvc1ChartSite45.clear();
+      this.paAvgChartSite45.clear();
+      this.rainChartSite45.clear();
       this.buoy67CurrentFlowVChart.clear();
       this.buoy67WaveWHChart.clear();
-      this.buoy67CtdChart.clear();
       this.buoy67WaveWHTChart.clear();
+      this.buoy67CtdChart.clear();
 
       //请求最近24小时数据并绘图
       this.queryBuoy67Last24Data(id);
@@ -149,8 +186,19 @@ export default {
           drawCharts.drawWaveAllWH(tableData.buoywvList, this.buoy67WaveWHChart);
           drawCharts.drawWaveAllWHT(tableData.buoywvList, this.buoy67WaveWHTChart);
         }
-        if (tableData.topCtdList != null && tableData.bottomCtdList != null) {
-          drawCharts.drawCTDChart(tableData.topCtdList, tableData.bottomCtdList, this.buoy67CtdChart);
+        if (tableData.ctdList != null) {
+          // ctd, buoy6->ctd5, buoy7->ctd6
+          let cid = id - 1, tableArr = Array(10);
+          tableArr[cid - 1] = tableData.ctdList;
+          drawCharts.drawCTDMultiChart(tableArr, [cid], this.buoy67CtdChart);
+        }
+
+        if (tableData.weathersiteList != null) {
+          drawCharts.drawSiteTaAvg(tableData.weathersiteList, this.taAvgChartSite45);
+          drawCharts.drawSiteRhAvg(tableData.weathersiteList, this.rhAvgChartSite45);
+          drawCharts.drawSiteWsWvc1(tableData.weathersiteList, this.wsWvc1ChartSite45);
+          drawCharts.drawSitePaAvg(tableData.weathersiteList, this.paAvgChartSite45);
+          drawCharts.drawSiteRain(tableData.weathersiteList, this.rainChartSite45);
         }
 
         if (tableData.fubList != null) {

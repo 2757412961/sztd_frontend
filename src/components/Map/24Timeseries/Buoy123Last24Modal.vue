@@ -157,9 +157,6 @@
         this.queryBuoy123Last24Data();
       },
       queryBuoy123Last24Data() {
-        this.buoy123CurrentFlowVChart.clear();
-        this.buoy123WaveWHChart.clear();
-        this.buoy123WaveWHTChart.clear();
         this.queryStatus = true;
         var api = `/api/SZTDService/queryBuoy123Last24.action`;
         this.$axios.get(api, {
