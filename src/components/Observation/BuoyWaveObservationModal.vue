@@ -9,10 +9,12 @@
     <el-form :inline="true" :model="buoyWaveObsForm" class="demo-form-inline" style="text-align:center;margin:0 auto">
       <el-form-item label="浮标">
         <el-select v-model="buoyWaveObsForm.name" placeholder="请选择浮标" size="small" style="width:150px">
-          <el-option label="1" value="Buoy1"></el-option>
-          <el-option label="2" value="Buoy2"></el-option>
-          <el-option label="3" value="Buoy3"></el-option>
-          <el-option label="4" value="Buoy4"></el-option>
+          <el-option label="1号浮标" value="Buoy1"></el-option>
+          <el-option label="2号浮标" value="Buoy2"></el-option>
+          <el-option label="3 / 5号浮标" value="Buoy3"></el-option>
+          <el-option label="4号浮标" value="Buoy4"></el-option>
+          <el-option label="1号航标" value="Buoy6"></el-option>
+          <el-option label="2号航标" value="Buoy7"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="起止时间">

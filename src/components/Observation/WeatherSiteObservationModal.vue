@@ -11,7 +11,8 @@
           <el-option label="桂山牛头岛气象站" value="1"></el-option>
           <el-option label="西人工岛气象站" value="2"></el-option>
           <el-option label="龙穴船厂气象站" value="3"></el-option>
-          <!--<el-option label="3" value="Site3"></el-option>-->
+          <el-option label="1号航标气象站" value="4"></el-option>
+          <el-option label="2号航标气象站" value="5"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="要素">
@@ -88,7 +89,7 @@
                 drawCharts.drawSiteWsWvc1(tableData,this.chart);
               else if(this.weatherSiteObsForm.name=="PaAvg")
                 drawCharts.drawSitePaAvg(tableData,this.chart);
-              else if(this.weatherSiteObsForm.name=="Rain")            
+              else if(this.weatherSiteObsForm.name=="Rain")
                 drawCharts.drawSiteRain(tableData,this.chart);
             }
             else

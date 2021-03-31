@@ -8,7 +8,7 @@
 
     <el-submenu index="observation">
       <template slot="title">
-        <i class="el-icon-location"></i>
+        <i class="el-icon-search"></i>
         <span slot="title">实时观测数据</span>
       </template>
       <el-menu-item index="buoyCurrentObservation" style="padding-left:60px">浮标海流观测</el-menu-item>

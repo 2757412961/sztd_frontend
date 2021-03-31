@@ -45,21 +45,29 @@
             nameList:
               [
                 {
-                  value: 2,
-                  label: '2号-平台表层CTD',
-                },
-                {
                   value: 1,
                   label: '1号-平台底层CTD'
                 },
                 {
-                  value: 4,
-                  label: '4号-浮标表层CTD'
+                  value: 2,
+                  label: '2号-平台表层CTD',
                 },
                 // {
                 //   value: 3,
                 //   label: '3号-浮标底层CTD'
                 // }
+                {
+                  value: 4,
+                  label: '4号-浮标表层CTD'
+                },
+                {
+                  value: 5,
+                  label: '1号-航标CTD'
+                },
+                {
+                  value: 6,
+                  label: '2号-航标CTD'
+                },
               ],
             timeRange:[],
           },
