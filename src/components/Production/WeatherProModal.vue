@@ -160,7 +160,7 @@
           this.$emit('cleanMapPro');
           //起报时间字符串，20为起报时间的北京时;
           var stDateStr=this.weatherProForm.stDate.getFullYear()+this.num2Str(this.weatherProForm.stDate.getMonth()+1)+this.num2Str(this.weatherProForm.stDate.getDate())+ "20";
-          var url=`/proapi/sztd_data_matlab/atm/`+stDateStr+`/`;//"http://"+this.$store.state.serverIP+"/sztdMatlab/";
+          var url=`/proapi/sztd_data_matlab/atm/`+stDateStr+`/`;
           var extent=this.$store.state.atmExtent;
           switch(this.weatherProForm.verticalLayer){
             case "surface":
