@@ -1,7 +1,7 @@
 <template>
   <modal width="1200"
          v-model="buoy67_last24_modal"
-         title="6号浮标最近24小时数据时间序列图"
+         title="1号航标最近24小时数据时间序列图"
          :mask-closable="false"
          :draggable="true"
          :footer-hide="true">

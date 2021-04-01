@@ -1664,7 +1664,7 @@ export default {
       var api = `/api/SZTDService/queryBuoy67New.action?id=${this.buoyId}`;
       this.$axios.get(api).then((response) => {
         //构建Popup_title文字内容
-        this.popup_title = this.buoyId + "号浮标最新数据";
+        this.popup_title = (this.buoyId - 5) + "号航标最新数据";
         //response.data是数据库中的一条记录，可以直接访问这条记录的字段 ctdData.id
         var buoy67New = response.data;
         if (buoy67New != null) {
